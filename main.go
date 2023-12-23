@@ -32,6 +32,7 @@ func readFromConn(conn net.Conn) string {
 	_, err := conn.Read(buffer)
 	if err != nil {
 		log.Printf("Cant read from conn by error: %s", err)
+		conn.Close()
 	}
 	return string(buffer)
 }
@@ -39,6 +40,7 @@ func readFromConn(conn net.Conn) string {
 func init_client() net.Listener {
 	listener, err := net.Listen("tcp", ":"+Port)
 	if err != nil {
+		listener.Close()
 		log.Fatalf("Unusable port %s by error: %s \n", Port, err)
 	}
 	return listener
@@ -80,7 +82,6 @@ func formatMessage(message TMessage, connected_users map[net.Addr]string) string
 
 func handle_conn(conn net.Conn, connected_users map[net.Addr]string, messages chan TMessage) {
 	init_conn(conn, connected_users)
-	defer conn.Close()
 
 	user_name := connected_users[conn.RemoteAddr()]
 
